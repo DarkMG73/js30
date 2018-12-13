@@ -49,6 +49,13 @@
       font-weight: 200;
       border-left: 1px solid #D1E2FF;
     }
+
+    .before {
+      background: blue;
+    }
+    .next {
+      background: green;
+    }
   </style>
    <!--
    The following is a common layout you would see in an email client.
@@ -96,6 +103,39 @@
   </div>
 
 <script>
+console.log('in');
+let lastChecked;
+let inBetween = false;
+const checkboxes = document.querySelectorAll('.inbox input[type = "checkbox"]');
+console.log(checkboxes);
+checkboxes.forEach(checkbox => checkbox.addEventListener('click', handleCheck))
+ 
+
+function handleCheck(e) {
+  console.log('in function', checkboxes);
+  if( e.shiftKey && this.checked ) {
+    console.log('shift is pressed')
+    checkboxes.forEach(checkbox => { 
+    if( checkbox === this || checkbox === lastChecked ) {
+          inBetween = !inBetween;
+      }
+
+    if ( inBetween ) {
+      checkbox.checked = true;
+    } 
+    });
+  }
+  lastChecked = this;
+
+}
+
+
+
+
+
 </script>
 </body>
 </html>
+
+
+

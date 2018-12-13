@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hold Shift to Check Multiple Checkboxes</title>
+</head>
+<body>
+  <style>
+
+    html {
+      font-family: sans-serif;
+      background: #ffc600;
+    }
+
+    .inbox {
+      max-width: 400px;
+      margin: 50px auto;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.1);
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #F1F1F1;
+    }
+
+    .item:last-child {
+      border-bottom: 0;
+    }
+
+    input:checked + p {
+      background: #F9F9F9;
+      text-decoration: line-through;
+    }
+
+    input[type="checkbox"] {
+      margin: 20px;
+    }
+
+    p {
+      margin: 0;
+      padding: 20px;
+      transition: background 0.2s;
+      flex: 1;
+      font-family:'helvetica neue';
+      font-size: 20px;
+      font-weight: 200;
+      border-left: 1px solid #D1E2FF;
+    }
+
+    .before {
+      background: blue;
+    }
+    .next {
+      background: green;
+    }
+  </style>
+   <!--
+   The following is a common layout you would see in an email client.
+
+   When a user clicks a checkbox, holds Shift, and then clicks another checkbox a few rows down, all the checkboxes inbetween those two checkboxes should be checked.
+
+  -->
+  <div class="inbox">
+    <div class="item">
+      <input type="checkbox">
+      <p>This is an inbox layout.</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Check one item</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Hold down your Shift key</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Check a lower item</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Everything inbetween should also be set to checked</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Try do it without any libraries</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Just regular JavaScript</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Good Luck!</p>
+    </div>
+    <div class="item">
+      <input type="checkbox">
+      <p>Don't forget to tweet your result!</p>
+    </div>
+  </div>
+
+<script>
+
+
+
+
+
+
+document.addEventListener('keyup', function() {shiftDown =  false});
+
+var shiftDown = false;
+var firstClick = false;
+var selectBefore = false;
+
+function resetShiftSelect() {
+  shiftDown = false;
+  firstClick = false;
+  selectBefore = false;
+  if( document.querySelector('.elem-after') !== null ) {
+    document.querySelectorAll('.elem-after').forEach(function(element) {
+      element.classList.remove('elem-after');
+    });
+  }
+  if( document.querySelector('.elem-before') !== null ) {
+    document.querySelectorAll('.elem-before').forEach(function(element) {
+      element.classList.remove('elem-before');
+    });
+    
+  }
+  listenForBoxClicks()
+}
+
+
+
+/////  Read when a checkbox is clicked (first click)
+const selectedBox = document.querySelectorAll('.item');
+let cntr = 0;
+function listenForBoxClicks() {
+  selectedBox.forEach(element => {
+  cntr++;
+  element.addEventListener('click', shiftHoldSelect);
+  element.classList.add('list-item' + cntr);
+  });
+}
+listenForBoxClicks();
+
+/////  Tell if Shift is being held down
+
+  //  Establish Shift state
+  document.addEventListener('keydown', function(event) {
+
+    var x = event.which || event.keyCode;
+
+    console.log(x);
+
+    //  Swap shiftDown to TRUE if Shift is being pressed
+    if( x = 16 ) { shiftDown =  true; }
+
+  } );
+
+
+/////  read box with second click
+var trips = 0;
+function shiftHoldSelect(e) {
+  console.log(shiftDown);
+  if ( shiftDown ) {
+
+    //  If first click mark it, if second grab all in between
+    if (!firstClick) {
+
+    firstClick = this;
+    console.log('firstClick = ', firstClick);
+      return
+    } else {
+      console.log('- SECOND click -', this);
+      /////  Test the direction then grab all .item's in between first and second click
+      let elemBefore = this.previousElementSibling;
+      let elemAfter = this.nextElementSibling;
+      // elemBefore.classList.add('before');
+      // elemAfter.classList.add('next');
+      cntr =0;
+      function testDirection() {
+
+        //  Once we find the firstClick or end, take action
+        if ( elemBefore === firstClick ) {
+
+          selectBefore = true;
+          console.log('selectBefore-IS BEFORE', selectBefore);
+          clickTheBoxes(selectBefore);
+          
+
+        } else {
+
+            if ( !elemBefore ) { 
+
+              selectBefore = false;
+              console.log('selectBefore - NOT BEFORE', this);
+              if ( elemAfter === firstClick ) {
+                  clickTheBoxes(selectBefore);
+              } else {
+                //  Since not before, mark the next elems in between
+                elemAfter.querySelector('input').classList.add('elem-after');
+                console.log('The next one:', elemAfter)
+                elemAfter = elemAfter.nextElementSibling;
+                testDirection();
+              } 
+              
+            } else {
+              elemBefore.querySelector('input').classList.add('elem-before');
+              console.log('not the one', elemBefore)
+              elemBefore = elemBefore.previousElementSibling;
+              //run this test again
+              testDirection();
+
+            } // END if-else !elmBefore
+        }
+      }
+      testDirection();
+
+      /////  Click all .item's in between
+      
+      function clickTheBoxes(selectBefore) {
+        selectedBox.forEach(element => {element.removeEventListener('click', shiftHoldSelect);});
+        
+        console.info('clickTheBoxes is running');
+
+        //  if firstClick was before
+        if (selectBefore) {
+          cntr = 0;
+          
+          console.info('Clicking boxes before');
+          elemToClick = document.querySelectorAll('.elem-before');
+          elemToClick.forEach(function(elemToClick) {
+            elemToClick.classList.add('before');
+            elemToClick.click();
+            })
+
+        } else { //  if firstClick was after
+          cntr = 0;
+          console.info('Clicking boxes after');
+          elemToClick = document.querySelectorAll('.elem-after');
+          elemToClick.forEach(function(elemToClick) {
+            elemToClick.classList.add('next');
+            elemToClick.click();
+            })
+
+        } 
+
+        /////  reset everything
+        resetShiftSelect();
+      }
+    } 
+      
+
+  } // END if shiftDown
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
+
+
+
