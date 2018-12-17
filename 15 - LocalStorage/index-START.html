@@ -23,6 +23,8 @@
     <form class="add-items">
       <input type="text" name="item" placeholder="Item Name" required>
       <input type="submit" value="+ Add Item">
+      <input type="submit" id="check-all-btn" value="Check All">
+      <input type="submit" id="delete-btn" value="Delete">
     </form>
   </div>
 
@@ -30,6 +32,9 @@
   const addItems = document.querySelector('.add-items');
   const itemsList = document.querySelector('.plates');
   const items = JSON.parse(localStorage.getItem('items')) ||[];
+
+  const checkAll = document.getElementById("check-all-btn");
+  const deleteBtn = document.getElementById("delete-btn")
 
 function addItem(e) {
     e.preventDefault();
@@ -57,8 +62,41 @@ function populateList(plates = [], platesList) {
     
   }).join('');
 }
+
+function toggleAllChecks(e) {
+    e.preventDefault();
+      const allItems = itemsList.querySelectorAll('input[type="checkbox"]');
+console.log('toggle all on');
+  items.forEach(item => {
+          console.log(item.done);
+    item.done = true;
+    item.checked = 'checked';
+
+  });
+  console.log('toggle all off');
+
+}
+
+function deleteUnChecked(e) {
+    e.preventDefault();
+      const allItems = itemsList.querySelectorAll('input[type="checkbox"]');
+  console.log('delete all on');
+  items.forEach(item => {
+
+      if(item.done = true) {
+        console.log(item);
+        console.log(`${item.done}`);
+        item.display = 'none';
+        //localStorage.removeItem('items', JSON.stringify(item));
+              
+      }
+
+      });
+}
 addItems.addEventListener('submit', addItem );
 itemsList.addEventListener('click', toggleDone );
+checkAll.addEventListener('click', toggleAllChecks);
+deleteBtn.addEventListener('click', deleteUnChecked);
 
 populateList(items, itemsList);
 
@@ -67,6 +105,7 @@ function toggleDone(e) {
   const el = e.target;
   const index = el.dataset.index;
   items[index].done = !items[index].done;
+  console.log(`${items[index].done}`);
   localStorage.setItem('items', JSON.stringify(items));
   console.log(el.dataset.index);
   populateList(items, itemsList);
