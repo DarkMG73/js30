@@ -11,4 +11,3 @@ function getVideo() {
         console.log(localMediaStream);
     });
 }
-getVideo()
